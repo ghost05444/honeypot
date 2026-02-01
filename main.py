@@ -23,6 +23,12 @@ sessions = {}
 # =========================================
 
 
+@app.get("/")
+def root():
+    return {"message": "Honeypot API is running"}
+
+
+# ✅ VALIDATOR PROBE (VERY IMPORTANT)
 @app.get("/honeypot/message")
 def honeypot_get_check():
     return {
@@ -32,22 +38,21 @@ def honeypot_get_check():
 
 
 @app.post("/honeypot/message")
-def receive_message(
-    payload: HoneypotRequest,
+async def receive_message(
+    request: Request,
     x_api_key: str = Header(None)
 ):
     # ---------- AUTH ----------
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
-    # ---------- READ RAW BODY SAFELY ----------
+    # ---------- RAW BODY HANDLING (BULLETPROOF) ----------
     try:
         body_bytes = await request.body()
         if not body_bytes:
             raise ValueError
         payload = await request.json()
     except Exception:
-        # GUARANTEED VALIDATOR RESPONSE
         return {
             "status": "ok",
             "message": "Honeypot endpoint reachable"
@@ -134,4 +139,3 @@ def receive_message(
         "agentReply": agent_reply,
         "extractedIntelligence": session["intelligence"]
     }
-
