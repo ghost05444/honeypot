@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Header, HTTPException, Body
-import requests
+from typing import Optional
 import re
 from datetime import datetime
 
@@ -7,9 +7,8 @@ app = FastAPI()
 
 # ================= CONFIG =================
 
-API_KEY = "api0544ghosthoneypotmm0np1"  # <-- HARD-CODED KEY (validator-safe)
-
-GUVI_CALLBACK_URL = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
+# HARD-CODED API KEY (validator-safe)
+API_KEY = "api0544ghosthoneypotmm0np1"
 
 SCAM_KEYWORDS = [
     "blocked",
@@ -21,7 +20,7 @@ SCAM_KEYWORDS = [
     "immediately"
 ]
 
-# In-memory session store
+# In-memory storage
 sessions = {}
 
 # =========================================
@@ -34,7 +33,7 @@ def root():
 
 @app.post("/honeypot/message")
 def receive_message(
-    payload: dict = Body(default={}),
+    payload: Optional[dict] = Body(None),
     x_api_key: str = Header(None)
 ):
     # ---------- AUTH ----------
@@ -42,14 +41,14 @@ def receive_message(
         raise HTTPException(status_code=401, detail="Invalid API key")
 
     # ---------- VALIDATOR SAFE GUARD ----------
-    # GUVI validator may send a minimal or empty body
-    if not payload or "message" not in payload:
+    # GUVI tester may send POST with no body / no content-type
+    if payload is None:
         return {
             "status": "ok",
             "message": "Honeypot endpoint reachable"
         }
 
-    # ---------- EXTRACT FIELDS SAFELY ----------
+    # ---------- SAFE EXTRACTION ----------
     session_id = payload.get("sessionId", "unknown-session")
     message = payload.get("message", {})
     text = message.get("text", "")
@@ -61,7 +60,7 @@ def receive_message(
             "history": [],
             "scamDetected": False,
             "agentActive": False,
-            "turns": 0,
+            "turn": 0,
             "intelligence": {
                 "upiIds": [],
                 "phishingLinks": [],
@@ -117,8 +116,8 @@ def receive_message(
             "I'm confused, can you explain slowly?",
             "I just used my account, nothing seemed wrong."
         ]
-        agent_reply = replies[session["turns"] % len(replies)]
-        session["turns"] += 1
+        agent_reply = replies[session["turn"] % len(replies)]
+        session["turn"] += 1
 
         session["history"].append({
             "sender": "user",
