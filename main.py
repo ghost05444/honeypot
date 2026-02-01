@@ -15,7 +15,7 @@ app = FastAPI()
 
 # ================= CONFIG =================
 
-API_KEY = os.getenv("HONEYPOT_API_KEY", "dev-key")
+API_KEY = os.getenv("api0544ghosthoneypotmm0np1", "dev-key")
 
 GUVI_CALLBACK_URL = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
 
@@ -174,3 +174,4 @@ def receive_message(
         "agentReply": agent_reply,
         "extractedIntelligence": session["intelligence"]
     }
+
