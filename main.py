@@ -28,11 +28,13 @@ def root():
     return {"message": "Honeypot API is running"}
 
 
-@app.post("/honeypot/message")
-async def receive_message(
-    request: Request,
-    x_api_key: str = Header(None)
-):
+@app.get("/honeypot/message")
+def honeypot_get_check():
+    return {
+        "status": "ok",
+        "message": "Honeypot endpoint reachable"
+    }
+    
     # ---------- AUTH ----------
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
@@ -131,3 +133,4 @@ async def receive_message(
         "agentReply": agent_reply,
         "extractedIntelligence": session["intelligence"]
     }
+
