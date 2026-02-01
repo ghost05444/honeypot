@@ -4,7 +4,6 @@ from pydantic import BaseModel
 import re
 import time
 from fastapi.responses import JSONResponse
-import os
 
 # python -m uvicorn main:app
 
@@ -174,6 +173,7 @@ def receive_message(
         "agentReply": agent_reply,
         "extractedIntelligence": session["intelligence"]
     }
+
 
 
 
