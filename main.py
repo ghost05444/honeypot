@@ -23,18 +23,19 @@ sessions = {}
 # =========================================
 
 
-@app.get("/")
-def root():
-    return {"message": "Honeypot API is running"}
-
-
 @app.get("/honeypot/message")
 def honeypot_get_check():
     return {
         "status": "ok",
         "message": "Honeypot endpoint reachable"
     }
-    
+
+
+@app.post("/honeypot/message")
+def receive_message(
+    payload: HoneypotRequest,
+    x_api_key: str = Header(None)
+):
     # ---------- AUTH ----------
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
